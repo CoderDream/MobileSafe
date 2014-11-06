@@ -9,7 +9,12 @@ MobileSafe
 ----------
 版本1.1
 
+更新日期
+
+- 20141107
+
 功能
+
 - 提示版本升级
 
 运行前准备
@@ -32,6 +37,10 @@ MobileSafe
 ----------
 版本1.0
 
+更新日期
+
+- 20141106
+
 功能
 
 - 初始化界面，包含版本信息和程序加载进度框
@@ -45,5 +54,3 @@ MobileSafe
 - activity_splash.xml
 - logo2.jpg
 - SplashActivity
-
-功能
