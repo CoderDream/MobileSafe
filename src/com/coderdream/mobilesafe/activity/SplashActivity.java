@@ -1,17 +1,138 @@
 package com.coderdream.mobilesafe.activity;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.content.DialogInterface.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.coderdream.mobilesafe.R;
+import com.coderdream.mobilesafe.domain.UpdateInfo;
+import com.coderdream.mobilesafe.engine.UpdateInfoParser;
 
 public class SplashActivity extends Activity {
 	private TextView tv_splash_version;
+
+	private UpdateInfo info;
+
+	private static final int GET_INFO_SUCCESS = 10;
+	private static final int SERVER_ERROR = 11;
+	private static final int SERVER_URL_ERROR = 12;
+	private static final int PROTOCOL_ERROR = 13;
+	private static final int IO_ERROR = 14;
+	private static final int XML_PARSE_ERROR = 15;
+	private static final int DOWNLOAD_SUCCESS = 16;
+	private static final int DOWNLOAD_ERROR = 17;
+	protected static final String TAG = "SplashActivity";
+	private long startTime;
+	private RelativeLayout rl_splash;
+	private long endTime;
+	private ProgressDialog pd;
+
+	private Handler handler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case XML_PARSE_ERROR:
+				Toast.makeText(getApplicationContext(), "xml解析错误", Toast.LENGTH_LONG).show();
+				// loadMainUI();
+				break;
+			case IO_ERROR:
+				Toast.makeText(getApplicationContext(), "I/O错误", Toast.LENGTH_LONG).show();
+				// loadMainUI();
+				break;
+			case PROTOCOL_ERROR:
+				Toast.makeText(getApplicationContext(), "协议不支持", Toast.LENGTH_LONG).show();
+				// loadMainUI();
+				break;
+			case SERVER_URL_ERROR:
+				Toast.makeText(getApplicationContext(), "服务器路径不正确", Toast.LENGTH_LONG).show();
+				// loadMainUI();
+				break;
+			case SERVER_ERROR:
+				Toast.makeText(getApplicationContext(), "服务器内部异常", Toast.LENGTH_LONG).show();
+				// loadMainUI();
+				break;
+			case GET_INFO_SUCCESS:
+				String serverversion = info.getVersion();
+				String currentversion = getVersion();
+				if (currentversion.equals(serverversion)) {
+					Log.i(TAG, "版本号相同进入主界面");
+					// loadMainUI();
+				} else {
+					Log.i(TAG, "版本号不相同,升级对话框");
+					showUpdateDialog();
+				}
+				break;
+
+			case DOWNLOAD_SUCCESS:
+				Log.i(TAG, "文件下载成功");
+				// File file = (File) msg.obj;
+				// installApk(file);
+				break;
+			case DOWNLOAD_ERROR:
+				Toast.makeText(getApplicationContext(), "下载数据异常", Toast.LENGTH_LONG).show();
+				// loadMainUI();
+				break;
+			}
+		};
+	};
+
+	/**
+	 * 显示升级提示的对话框
+	 */
+	protected void showUpdateDialog() {
+		// 创建了对话框的构造器
+		AlertDialog.Builder builder = new Builder(this);
+		// 设置对话框的提示内容
+		builder.setIcon(getResources().getDrawable(R.drawable.notification));
+		// 设置升级标题
+		builder.setTitle("升级提示");
+		// 设置升级提示内容
+		builder.setMessage(info.getDescription());
+		// 创建下载进度条
+		pd = new ProgressDialog(SplashActivity.this);
+		// 设置进度条在显示时的提示消息
+		pd.setMessage("正在下载");
+		// 指定显示下载进度条为水平形状
+		pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		// 设置升级按钮
+		builder.setPositiveButton("升级", new OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				// loadMainUI();
+			}
+		});
+		builder.setNegativeButton("取消", new OnClickListener() {
+
+			public void onClick(DialogInterface dialog, int which) {
+				// loadMainUI();
+			}
+		});
+		builder.create().show();
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -19,12 +140,105 @@ public class SplashActivity extends Activity {
 		// 设置为无标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// 设置为全屏模式
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_splash);
+
+		rl_splash = (RelativeLayout) findViewById(R.id.rl_splash);
 		tv_splash_version = (TextView) findViewById(R.id.tv_splash_version);
 		tv_splash_version.setText("版本号:" + getVersion());
+
+		AlphaAnimation aa = new AlphaAnimation(0.3f, 1.0f);
+		aa.setDuration(2000);
+		rl_splash.startAnimation(aa);
+
+		// 1.连接服务器获取服务器上的配置信息.
+		new Thread(new CheckVersionTask()) {
+		}.start();
+	}
+
+	/**
+	 * 连网检查应用的版本号与服务端上的版本号是否相同
+	 * 
+	 * @author Administrator
+	 * 
+	 */
+	private class CheckVersionTask implements Runnable {
+
+		public void run() {
+			// 获取Sdcard下的config.xml文件，如果该文件不存在，那么将会自动创建该文件
+			SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
+			// 由sp对象来获取autoupdate所对应的boolean值，如果该键不存在，默认返回true
+			boolean autoupdate = sp.getBoolean("autoupdate", true);
+			// 自动更新没有开启
+			if (!autoupdate) {
+				try {
+					// 睡眠2秒钟的是为了播放动画
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				// 睡眠2秒钟播放动画完毕后进入程序主界面
+				// loadMainUI();
+			}
+			startTime = System.currentTimeMillis();
+			Message msg = Message.obtain();
+			try {
+				// 获取服务端的配置信息的连接地址
+				String serverurl = getResources().getString(R.string.serverurl);
+				URL url = new URL(serverurl);
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod("GET");// 设置请求方式
+				conn.setConnectTimeout(5000);
+				int code = conn.getResponseCode();// 获取响应码
+				if (code == 200) {// 响应码为200时，表示与服务端连接成功
+					InputStream is = conn.getInputStream();
+					info = UpdateInfoParser.getUpdateInfo(is);
+					endTime = System.currentTimeMillis();
+					long resulttime = endTime - startTime;
+					if (resulttime < 2000) {
+						try {
+							Thread.sleep(2000 - resulttime);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+
+					msg.what = GET_INFO_SUCCESS;
+					handler.sendMessage(msg);
+				} else {
+					// 服务器状态错误.
+					msg.what = SERVER_ERROR;
+					handler.sendMessage(msg);
+					endTime = System.currentTimeMillis();
+					long resulttime = endTime - startTime;
+					if (resulttime < 2000) {
+						try {
+							Thread.sleep(2000 - resulttime);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+				msg.what = SERVER_URL_ERROR;
+				handler.sendMessage(msg);
+			} catch (ProtocolException e) {
+				msg.what = PROTOCOL_ERROR;
+				handler.sendMessage(msg);
+				e.printStackTrace();
+			} catch (IOException e) {
+				msg.what = IO_ERROR;
+				handler.sendMessage(msg);
+				e.printStackTrace();
+			} catch (XmlPullParserException e) {
+				msg.what = XML_PARSE_ERROR;
+				handler.sendMessage(msg);
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
