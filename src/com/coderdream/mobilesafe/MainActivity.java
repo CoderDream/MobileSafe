@@ -1,4 +1,4 @@
-package com.coderdream;
+package com.coderdream.mobilesafe;
 
 import android.os.Bundle;
 import android.app.Activity;
