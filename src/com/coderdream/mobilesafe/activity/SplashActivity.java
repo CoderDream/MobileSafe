@@ -15,14 +15,16 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.content.DialogInterface.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -33,6 +35,7 @@ import android.widget.Toast;
 import com.coderdream.mobilesafe.R;
 import com.coderdream.mobilesafe.domain.UpdateInfo;
 import com.coderdream.mobilesafe.engine.UpdateInfoParser;
+import com.coderdream.mobilesafe.util.DownLoadUtil;
 
 public class SplashActivity extends Activity {
 	private TextView tv_splash_version;
@@ -58,30 +61,30 @@ public class SplashActivity extends Activity {
 			switch (msg.what) {
 			case XML_PARSE_ERROR:
 				Toast.makeText(getApplicationContext(), "xml解析错误", Toast.LENGTH_LONG).show();
-				// loadMainUI();
+				loadMainUI();
 				break;
 			case IO_ERROR:
 				Toast.makeText(getApplicationContext(), "I/O错误", Toast.LENGTH_LONG).show();
-				// loadMainUI();
+				loadMainUI();
 				break;
 			case PROTOCOL_ERROR:
 				Toast.makeText(getApplicationContext(), "协议不支持", Toast.LENGTH_LONG).show();
-				// loadMainUI();
+				loadMainUI();
 				break;
 			case SERVER_URL_ERROR:
 				Toast.makeText(getApplicationContext(), "服务器路径不正确", Toast.LENGTH_LONG).show();
-				// loadMainUI();
+				loadMainUI();
 				break;
 			case SERVER_ERROR:
 				Toast.makeText(getApplicationContext(), "服务器内部异常", Toast.LENGTH_LONG).show();
-				// loadMainUI();
+				loadMainUI();
 				break;
 			case GET_INFO_SUCCESS:
 				String serverversion = info.getVersion();
 				String currentversion = getVersion();
 				if (currentversion.equals(serverversion)) {
 					Log.i(TAG, "版本号相同进入主界面");
-					// loadMainUI();
+					loadMainUI();
 				} else {
 					Log.i(TAG, "版本号不相同,升级对话框");
 					showUpdateDialog();
@@ -95,7 +98,7 @@ public class SplashActivity extends Activity {
 				break;
 			case DOWNLOAD_ERROR:
 				Toast.makeText(getApplicationContext(), "下载数据异常", Toast.LENGTH_LONG).show();
-				// loadMainUI();
+				loadMainUI();
 				break;
 			}
 		};
@@ -122,16 +125,58 @@ public class SplashActivity extends Activity {
 		// 设置升级按钮
 		builder.setPositiveButton("升级", new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				// loadMainUI();
+				Log.i(TAG, "升级,下载" + info.getApkurl());
+				// 判断Sdcard是否可用
+				if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+					pd.show();// 显示下载进度条
+					// 开启子线程下载apk
+					new Thread() {
+						public void run() {
+							// 获取服务端新版本apk的下载地址
+							String path = info.getApkurl();
+							// 获取最新apk的文件名
+							String filename = DownLoadUtil.getFilename(path);
+							// 在Sdcard的根目录上创建一个文件。第一个参数是用于获取Sdcard的根目录，第二个参数是在Sdcard的根目录上创建的文件的文件名
+							File file = new File(Environment.getExternalStorageDirectory(), filename);
+							// 得到下载后的apk的完整名称
+							file = DownLoadUtil.getFile(path, file.getAbsolutePath(), pd);
+							if (file != null) {
+								// 向主线程发送消息下载成功的消息
+								Message msg = Message.obtain();
+								msg.what = DOWNLOAD_SUCCESS;
+								msg.obj = file;
+								handler.sendMessage(msg);
+							} else {
+								// 向主线程发送消息下载失败的消息
+								Message msg = Message.obtain();
+								msg.what = DOWNLOAD_ERROR;
+								handler.sendMessage(msg);
+							}
+							pd.dismiss();// 下载结束后，将下载的进度条关闭掉
+						};
+					}.start();
+				} else {
+					Toast.makeText(getApplicationContext(), "sd卡不可用", Toast.LENGTH_LONG).show();
+					loadMainUI();// 进入程序主界面
+				}
 			}
 		});
 		builder.setNegativeButton("取消", new OnClickListener() {
 
 			public void onClick(DialogInterface dialog, int which) {
-				// loadMainUI();
+				loadMainUI();
 			}
 		});
 		builder.create().show();
+	}
+
+	/**
+	 * 加载主界面
+	 */
+	private void loadMainUI() {
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+		finish();// 把当前的Activity从任务栈里面移除
 	}
 
 	@Override
@@ -179,7 +224,7 @@ public class SplashActivity extends Activity {
 					e.printStackTrace();
 				}
 				// 睡眠2秒钟播放动画完毕后进入程序主界面
-				// loadMainUI();
+				loadMainUI();
 			}
 			startTime = System.currentTimeMillis();
 			Message msg = Message.obtain();

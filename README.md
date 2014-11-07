@@ -1,13 +1,39 @@
-MobileSafe
+手机安全卫士
 ==========
 
 MobileSafe
 
 
 
+----------
+
+## 版本1.2 ##
+
+更新日期
+
+- 20141107
+
+功能
+
+- 提供新版本下载
+
+新增文件
+
+No  |文件名  | 说明
+--- |------------- | -------------
+1  |DownLoadUtil.java  | 提供下载功能
+2  |MainActivity.java  | 主界面
+
+修改文件
+
+No  |文件名  | 说明
+--- |------------- | -------------
+1  |SplashActivity.java  | 增加响应下载的方法
+2  |AndroidManifest.xml  | 注册MainActivity
+
 
 ----------
-版本1.1
+## 版本1.1 ##
 
 更新日期
 
@@ -35,7 +61,7 @@ MobileSafe
 
 
 ----------
-版本1.0
+## 版本1.0 ##
 
 更新日期
 
@@ -53,4 +79,4 @@ MobileSafe
 
 - activity_splash.xml
 - logo2.jpg
-- SplashActivity
+- SplashActivity.java

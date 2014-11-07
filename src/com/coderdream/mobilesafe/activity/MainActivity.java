@@ -1,8 +1,10 @@
-package com.coderdream.mobilesafe;
+package com.coderdream.mobilesafe.activity;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
+
+import com.coderdream.mobilesafe.R;
 
 public class MainActivity extends Activity {
 
