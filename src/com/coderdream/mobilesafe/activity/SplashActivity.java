@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -93,8 +94,8 @@ public class SplashActivity extends Activity {
 
 			case DOWNLOAD_SUCCESS:
 				Log.i(TAG, "文件下载成功");
-				// File file = (File) msg.obj;
-				// installApk(file);
+				File file = (File) msg.obj;
+				installApk(file);
 				break;
 			case DOWNLOAD_ERROR:
 				Toast.makeText(getApplicationContext(), "下载数据异常", Toast.LENGTH_LONG).show();
@@ -103,6 +104,24 @@ public class SplashActivity extends Activity {
 			}
 		};
 	};
+	
+	/**
+	 * 安装一个apk文件
+	 * 
+	 * @param file
+	 *            要安装的完整文件名
+	 */
+	protected void installApk(File file) {
+		// 隐式意图
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.VIEW");// 设置意图的动作
+		intent.addCategory("android.intent.category.DEFAULT");// 为意图添加额外的数据
+		// intent.setType("application/vnd.android.package-archive");
+		// intent.setData(Uri.fromFile(file));
+		intent.setDataAndType(Uri.fromFile(file),
+				"application/vnd.android.package-archive");// 设置意图的数据与类型
+		startActivity(intent);// 激活该意图
+	}
 
 	/**
 	 * 显示升级提示的对话框

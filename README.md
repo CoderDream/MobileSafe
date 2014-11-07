@@ -45,7 +45,7 @@ No  |文件名  | 说明
 
 运行前准备
 
-1. 解压缩tomcat至D:\adt-bundle-windows-x86-20130219\apache-tomcat-6.0.37\webapps\ROOT
+1. 解压缩tomcat至D:\adt-bundle-windows-x86-20130219\apache-tomcat-6.0.37\
 2. 将documents\v1.1下的info.xml拷贝到D:\adt-bundle-windows-x86-20130219\apache-tomcat-6.0.37\webapps\ROOT下
 
 运行结果
