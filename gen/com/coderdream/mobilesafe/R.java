@@ -26,30 +26,36 @@ public final class R {
         public static final int bg_selector=0x7f020002;
         public static final int devide_line=0x7f020003;
         public static final int ic_launcher=0x7f020004;
-        public static final int logo2=0x7f020005;
-        public static final int notification=0x7f020006;
-        public static final int widget01=0x7f020007;
-        public static final int widget02=0x7f020008;
-        public static final int widget03=0x7f020009;
-        public static final int widget04=0x7f02000a;
-        public static final int widget05=0x7f02000b;
-        public static final int widget06=0x7f02000c;
-        public static final int widget07=0x7f02000d;
-        public static final int widget08=0x7f02000e;
-        public static final int widget09=0x7f02000f;
+        public static final int jiantou1=0x7f020005;
+        public static final int listview_devider=0x7f020006;
+        public static final int logo2=0x7f020007;
+        public static final int notification=0x7f020008;
+        public static final int widget01=0x7f020009;
+        public static final int widget02=0x7f02000a;
+        public static final int widget03=0x7f02000b;
+        public static final int widget04=0x7f02000c;
+        public static final int widget05=0x7f02000d;
+        public static final int widget06=0x7f02000e;
+        public static final int widget07=0x7f02000f;
+        public static final int widget08=0x7f020010;
+        public static final int widget09=0x7f020011;
     }
     public static final class id {
-        public static final int action_settings=0x7f080005;
+        public static final int action_settings=0x7f080008;
+        public static final int cb_setting_autoupdate=0x7f080007;
         public static final int gv_main=0x7f080002;
         public static final int iv_main_item_icon=0x7f080003;
         public static final int rl_splash=0x7f080000;
         public static final int tv_main_item_name=0x7f080004;
+        public static final int tv_setting_autoupdate_status=0x7f080006;
+        public static final int tv_setting_autoupdate_text=0x7f080005;
         public static final int tv_splash_version=0x7f080001;
     }
     public static final class layout {
         public static final int activity_splash=0x7f030000;
         public static final int main=0x7f030001;
         public static final int main_item=0x7f030002;
+        public static final int setting_center=0x7f030003;
     }
     public static final class menu {
         public static final int main=0x7f070000;
