@@ -5,6 +5,33 @@ MobileSafe
 
 ----------
 
+## 版本2.2 ##
+
+更新日期
+
+- 20141108
+
+功能
+
+- 手机防盗之设置密码与验证密码
+
+新增文件
+
+No  |文件名  | 说明
+--- |------------- | -------------
+1  |first_entry_dialog.xml| 布局文件
+2  |normal_entry_dialog.xml  | 布局文件
+3  |Md5Encoder.java | MD5加密工具类
+4  |LostProtectedActivity.java | 手机防盗
+
+
+修改文件
+
+No  |文件名  | 说明
+--- |------------- | -------------
+1  |AndroidManifest.xml | 注册“手机防盗”activity
+2  |MainActivity.java | 添加“手机防盗”响应事件
+
 ## 版本2.1 ##
 
 更新日期
