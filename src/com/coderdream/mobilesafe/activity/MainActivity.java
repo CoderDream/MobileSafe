@@ -32,9 +32,11 @@ public class MainActivity extends Activity {
 			// 参数四：id的值为点击了GridView的哪一项对应的数值，点击了GridView第9项，那id就等于8
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				switch (position) {
-
-				// 设置中心：跳转到”设置中心“对应的Activity界面
-				case 8:
+				case 0: // 手机防盗：跳转到”手机防盗“对应的Activity界面
+					Intent lostprotectedIntent = new Intent(MainActivity.this, LostProtectedActivity.class);
+					startActivity(lostprotectedIntent);
+					break;
+				case 8:// 设置中心：跳转到”设置中心“对应的Activity界面
 					Intent settingIntent = new Intent(MainActivity.this, SettingCenterActivity.class);
 					startActivity(settingIntent);
 					break;
