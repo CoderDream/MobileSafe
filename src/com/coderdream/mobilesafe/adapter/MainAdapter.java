@@ -3,6 +3,7 @@ package com.coderdream.mobilesafe.adapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,11 @@ import android.widget.TextView;
 import com.coderdream.mobilesafe.R;
 
 public class MainAdapter extends BaseAdapter {
+	private static final String TAG = "MainAdapter";
 	// 布局填充器
 	private LayoutInflater inflater;
 	// 接收MainActivity传递过来的上下文对象
+	@SuppressWarnings("unused")
 	private Context context;
 	// 用于替换”手机防盗“的新标题
 	private String newname;
@@ -32,6 +35,7 @@ public class MainAdapter extends BaseAdapter {
 		// 获取用于替换”手机防盗“的新标题，默认值为空
 		SharedPreferences sp = context.getSharedPreferences("config", Context.MODE_PRIVATE);
 		newname = sp.getString("newname", "");
+		Log.d(TAG, "getNewname: " + newname);
 	}
 
 	/**
@@ -68,6 +72,7 @@ public class MainAdapter extends BaseAdapter {
 		if (position == 0) {
 			// 判断sp中取出的newname是否为空，如果不为空的话，将“手机防盗”对应的标题修改为sp中修改后的标题
 			if (!TextUtils.isEmpty(newname)) {
+				Log.d(TAG, "setNewname: " + newname);
 				tv_name.setText(newname);
 			}
 		}
