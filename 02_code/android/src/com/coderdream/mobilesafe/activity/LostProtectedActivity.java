@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,8 +40,11 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	// 对话框对象
 	private AlertDialog dialog;
 
+	private String TAG = "LostProtectedActivity";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.v(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		// 获取Sdcard下的config.xml文件，如果该文件不存在，那么将会自动创建该文件
 		sp = getSharedPreferences("config", MODE_PRIVATE);
@@ -58,15 +62,21 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	 * 第一次进入“手机防盗”时要显示的对话框
 	 */
 	private void showFirstEntryDialog() {
+		Log.v(TAG, "showFirstEntryDialog");
 		// 得到对话框的构造器
 		AlertDialog.Builder builder = new Builder(this);
-		// 通过View对象的inflate(Context context, int resource, ViewGroup root)对象将第一次进入“手机防盗”要弹出的窗体对话框的布局文件转换为一个View对象
+		// 通过View对象的inflate(Context context, int resource, ViewGroup
+		// root)对象将第一次进入“手机防盗”要弹出的窗体对话框的布局文件转换为一个View对象
 		View view = View.inflate(this, R.layout.first_entry_dialog, null);
 		// 查找view对象中的各个控件
-		et_first_dialog_pwd = (EditText) view.findViewById(R.id.et_first_dialog_pwd);
-		et_first_dialog_pwd_confirm = (EditText) view.findViewById(R.id.et_first_dialog_pwd_confirm);
-		bt_first_dialog_ok = (Button) view.findViewById(R.id.bt_first_dialog_ok);
-		bt_first_dialog_cancle = (Button) view.findViewById(R.id.bt_first_dialog_cancle);
+		et_first_dialog_pwd = (EditText) view
+				.findViewById(R.id.et_first_dialog_pwd);
+		et_first_dialog_pwd_confirm = (EditText) view
+				.findViewById(R.id.et_first_dialog_pwd_confirm);
+		bt_first_dialog_ok = (Button) view
+				.findViewById(R.id.bt_first_dialog_ok);
+		bt_first_dialog_cancle = (Button) view
+				.findViewById(R.id.bt_first_dialog_cancle);
 		// 分别为“取消”、“确定”按钮设置一个监听器
 		bt_first_dialog_cancle.setOnClickListener(this);
 		bt_first_dialog_ok.setOnClickListener(this);
@@ -82,6 +92,7 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	 * 当设置过密码后，正常进入“手机防盗”时要显示的对话框
 	 */
 	private void showNormalEntryDialog() {
+		Log.v(TAG, "showNormalEntryDialog");
 		AlertDialog.Builder builder = new Builder(this);
 		builder.setOnCancelListener(new OnCancelListener() {
 			// 当点击“取消”按钮时，直接结束掉当前的LostProtectedActivity，程序会进入到主界面
@@ -89,12 +100,16 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 				finish();
 			}
 		});
-		// 通过View对象的inflate(Context context, int resource, ViewGroup root)对象将非第一次进入“手机防盗”要弹出的窗体对话框的布局文件转换为一个View对象
+		// 通过View对象的inflate(Context context, int resource, ViewGroup
+		// root)对象将非第一次进入“手机防盗”要弹出的窗体对话框的布局文件转换为一个View对象
 		View view = View.inflate(this, R.layout.normal_entry_dialog, null);
 		// 查找view对象中的各个控件
-		et_normal_dialog_pwd = (EditText) view.findViewById(R.id.et_normal_dialog_pwd);
-		bt_normal_dialog_ok = (Button) view.findViewById(R.id.bt_normal_dialog_ok);
-		bt_normal_dialog_cancle = (Button) view.findViewById(R.id.bt_normal_dialog_cancle);
+		et_normal_dialog_pwd = (EditText) view
+				.findViewById(R.id.et_normal_dialog_pwd);
+		bt_normal_dialog_ok = (Button) view
+				.findViewById(R.id.bt_normal_dialog_ok);
+		bt_normal_dialog_cancle = (Button) view
+				.findViewById(R.id.bt_normal_dialog_cancle);
 		// 分别为“取消”、“确定”按钮设置一个监听器
 		bt_normal_dialog_cancle.setOnClickListener(this);
 		bt_normal_dialog_ok.setOnClickListener(this);
@@ -112,6 +127,7 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	 * @return
 	 */
 	private boolean isSetupPwd() {
+		Log.v(TAG, "isSetupPwd");
 		String savedpwd = sp.getString("password", "");
 		if (TextUtils.isEmpty(savedpwd)) {// 通过一个文本工具类来判断String是否为空
 			return false;
@@ -125,7 +141,7 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	 * 为两个对话框中的“确定”和“取消”按钮设置的监听器
 	 */
 	public void onClick(View v) {
-
+		Log.v(TAG, "onClick");
 		switch (v.getId()) {
 		// 第一次进入“手机防盗”时弹出的对话框中，对“取消”按钮事件的处理
 		case R.id.bt_first_dialog_cancle:
@@ -136,7 +152,8 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 		case R.id.bt_first_dialog_ok:
 			// 获取到两个EditText中的输入的密码，并将EditText前后的空格给去除掉
 			String pwd = et_first_dialog_pwd.getText().toString().trim();
-			String pwd_confirm = et_first_dialog_pwd_confirm.getText().toString().trim();
+			String pwd_confirm = et_first_dialog_pwd_confirm.getText()
+					.toString().trim();
 			// 判断两个EditText中的内容是否为空
 			if (TextUtils.isEmpty(pwd_confirm) || TextUtils.isEmpty(pwd)) {
 				Toast.makeText(this, "密码不能为空", Toast.LENGTH_LONG).show();
@@ -167,7 +184,8 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 			break;
 		// 非第一次进入“手机防盗”时弹出的对话框中，对“确定”按钮事件的处理
 		case R.id.bt_normal_dialog_ok:
-			String userentrypwd = et_normal_dialog_pwd.getText().toString().trim();
+			String userentrypwd = et_normal_dialog_pwd.getText().toString()
+					.trim();
 			if (TextUtils.isEmpty(userentrypwd)) {
 				Toast.makeText(this, "密码不能为空", Toast.LENGTH_LONG).show();
 				return;
@@ -191,6 +209,7 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.v(TAG, "onCreateOptionsMenu");
 		// 参数一：当前Item所在的组，参数二：当前Item的id号，在Switch中要用到
 		// 参数三：当出现多个Item时，该数字可以决定Item在菜单中的前后位置，参数四：当前Item在菜单中的标题
 		menu.add(1, 1, 1, "更改标题名称");
@@ -202,6 +221,7 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Log.v(TAG, "onOptionsItemSelected");
 		// 上面定义的id为1
 		if (item.getItemId() == Toast.LENGTH_LONG) {
 			// 获取一个窗体构造器
@@ -213,19 +233,20 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 			// 将文本输入框添加到窗体对话框上
 			builder.setView(et);
 			// 为窗体对话框添加一个“确定”按钮
-			builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-				// 当点击“确定”按钮时要执行的回调方法
-				public void onClick(DialogInterface dialog, int which) {
-					// 获取文本输入框中的内容，并将文本前后的空格去除掉
-					String newname = et.getText().toString().trim();
-					// 获取sp对应的编辑器
-					Editor editor = sp.edit();
-					// 将修改后的名称保存到sp中，此时数据还只在缓存中
-					editor.putString("newname", newname);
-					// 数据真正的被保存到sp对应的文件中
-					editor.commit();
-				}
-			});
+			builder.setPositiveButton("确定",
+					new DialogInterface.OnClickListener() {
+						// 当点击“确定”按钮时要执行的回调方法
+						public void onClick(DialogInterface dialog, int which) {
+							// 获取文本输入框中的内容，并将文本前后的空格去除掉
+							String newname = et.getText().toString().trim();
+							// 获取sp对应的编辑器
+							Editor editor = sp.edit();
+							// 将修改后的名称保存到sp中，此时数据还只在缓存中
+							editor.putString("newname", newname);
+							// 数据真正的被保存到sp对应的文件中
+							editor.commit();
+						}
+					});
 			// 创建并显示出窗体对话框
 			builder.create().show();
 		}
