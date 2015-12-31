@@ -28,16 +28,24 @@ public class MainActivity extends Activity {
 		gv_main.setAdapter(new MainAdapter(this));
 		// 为GridView对象中的item设置点击时的监听事件
 		gv_main.setOnItemClickListener(new OnItemClickListener() {
-			// 参数一：item的父控件，也就是GridView 参数二：当前点击的item 参数三：当前点击的item在GridView中的位置
+			// 参数一：item的父控件，也就是GridView
+			// 参数二：当前点击的item
+			// 参数三：当前点击的item在GridView中的位置
 			// 参数四：id的值为点击了GridView的哪一项对应的数值，点击了GridView第9项，那id就等于8
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
 				switch (position) {
-				case 0: // 手机防盗：跳转到”手机防盗“对应的Activity界面
-					Intent lostprotectedIntent = new Intent(MainActivity.this, LostProtectedActivity.class);
+				// 手机防盗：跳转到”手机防盗“对应的Activity界面
+				case 0:
+					Intent lostprotectedIntent = new Intent(MainActivity.this,
+							LostProtectedActivity.class);
 					startActivity(lostprotectedIntent);
 					break;
-				case 8:// 设置中心：跳转到”设置中心“对应的Activity界面
-					Intent settingIntent = new Intent(MainActivity.this, SettingCenterActivity.class);
+
+				// 设置中心：跳转到”设置中心“对应的Activity界面
+				case 8:
+					Intent settingIntent = new Intent(MainActivity.this,
+							SettingCenterActivity.class);
 					startActivity(settingIntent);
 					break;
 				}

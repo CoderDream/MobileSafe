@@ -25,7 +25,7 @@ public class Md5Encoder {
 			return sb.toString();// 将加密后的字符转成字符串返回
 		} catch (NoSuchAlgorithmException e) {// 加密器没有被找到，该异常不可能发生。因为我们填入的“MD5”是正确的
 			e.printStackTrace();
-			// CNA'T REACH;
+			// CAN'T REACH;
 			return "";
 		}
 	}
