@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -15,7 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.coderdream.mobilesafe.R;
@@ -25,8 +29,8 @@ import com.coderdream.mobilesafe.util.Md5Encoder;
  * 手机防盗模块
  */
 public class LostProtectedActivity extends Activity implements OnClickListener {
-	// private static final String TAG = "LostProtectedActivity";
-	// 偏好设置存储对象
+	private static final String TAG = "LostProtectedActivity";
+	//偏好设置存储对象
 	private SharedPreferences sp;
 	// 第一次进入”手机防盗“界面时的界面控件对象
 	private EditText et_first_dialog_pwd;
@@ -37,10 +41,14 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 	private EditText et_normal_dialog_pwd;
 	private Button bt_normal_dialog_ok;
 	private Button bt_normal_dialog_cancle;
-	// 对话框对象
+	//设置向导结束后的结果界面中的控件
+	private TextView tv_lost_protect_number;//绑定的安全号码
+	private RelativeLayout rl_lost_protect_setting;//防盗保护设置是否开启所在的父控件，获取该控件是要为该控件设置点击事件（点击该控件中的任意一个控件都会响应点击事件）
+	private CheckBox cb_lost_protect_setting;//防盗保护是否开启
+	private TextView tv_lost_protect_reentry_setup;//该控件的点击事件执行：重新进入设置向导界面
+	//对话框对象
 	private AlertDialog dialog;
 
-	private String TAG = "LostProtectedActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -195,15 +203,75 @@ public class LostProtectedActivity extends Activity implements OnClickListener {
 			if (savedpwd.equals(Md5Encoder.encode(userentrypwd))) {
 				Toast.makeText(this, "密码正确进入界面", Toast.LENGTH_LONG).show();
 				dialog.dismiss();
-				// 加载主界面
+				// 判断用户是否进行过设置向导.
+				if(isSetupAlready()){
+					//进入到完成设置向导后的界面
+					Log.i(TAG,"进入到完成设置向导后的界面");
+					setContentView(R.layout.lost_protected);
+					//绑定的安全号码
+					tv_lost_protect_number = (TextView) findViewById(R.id.tv_lost_protect_number);
+					String safemuber = sp.getString("safemuber", "");
+					tv_lost_protect_number.setText(safemuber);
+					//防盗保护设置是否开启所在的父控件，获取该控件是要为该控件设置点击事件（点击该控件中的任意一个控件都会响应点击事件）
+					rl_lost_protect_setting = (RelativeLayout)findViewById(R.id.rl_lost_protect_setting);
+					//防盗保护是否开启
+					cb_lost_protect_setting = (CheckBox)findViewById(R.id.cb_lost_protect_setting);
+					boolean protecting = sp.getBoolean("protecting", false);
+					cb_lost_protect_setting.setChecked(protecting);
+					if(protecting){
+						cb_lost_protect_setting.setText("防盗保护已经开启");
+					}else{
+						cb_lost_protect_setting.setText("防盗保护没有开启");
+					}
+					//该控件的点击事件执行：重新进入设置向导界面
+					tv_lost_protect_reentry_setup = (TextView)findViewById(R.id.tv_lost_protect_reentry_setup);
+					
+					rl_lost_protect_setting.setOnClickListener(this);
+					tv_lost_protect_reentry_setup.setOnClickListener(this);
+					
+				}else{
+					//进入设置向导界面
+					Log.i(TAG,"进入到设置向导界面");
+					Intent intent = new Intent(this,Setup1Activity.class);
+					//执行该方法的原因在于：当用户完成设置向导后按back键时，避免出现之前的界面，增强用户体验效果
+					finish();
+					startActivity(intent);
+				}
 				return;
 			} else {
 				Toast.makeText(this, "密码不正确", Toast.LENGTH_LONG).show();
 				return;
 			}
+		case R.id.tv_lost_protect_reentry_setup://重新进入设置向导
+			Intent reentryIntent = new Intent(this,Setup1Activity.class);
+			startActivity(reentryIntent);
+			finish();
+			break;
+		case R.id.rl_lost_protect_setting://是否开启防盗保护
+			Editor editor =	sp.edit();
+			if(cb_lost_protect_setting.isChecked()){
+				cb_lost_protect_setting.setChecked(false);
+				cb_lost_protect_setting.setText("防盗保护没有开启");
+				editor.putBoolean("protecting", false);
+				
+			}else{
+				cb_lost_protect_setting.setChecked(true);
+				cb_lost_protect_setting.setText("防盗保护已经开启");
+				editor.putBoolean("protecting", true);
+			}
+			editor.commit();
+			break;
 		}
 	}
-
+	/**
+	 * 判断用户是否完成过设置向导
+	 * 
+	 * @return
+	 */
+	private boolean isSetupAlready() {
+		//默认情况下返回false，表示用户没有进行过设置向导
+		return sp.getBoolean("issetup", false);
+	}
 	/**
 	 * 当长按Menu键时会打开一个菜单，当彩蛋第一次被打开时，框架回调该方法
 	 */

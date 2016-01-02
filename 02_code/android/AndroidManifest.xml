@@ -28,6 +28,10 @@
         <activity android:name="com.coderdream.mobilesafe.activity.MainActivity" />
         <activity android:name="com.coderdream.mobilesafe.activity.SettingCenterActivity" />
         <activity android:name="com.coderdream.mobilesafe.activity.LostProtectedActivity" />
+        <activity android:name="com.coderdream.mobilesafe.activity.Setup1Activity" />
+        <activity android:name="com.coderdream.mobilesafe.activity.Setup2Activity" />
+        <activity android:name="com.coderdream.mobilesafe.activity.Setup3Activity" />
+        <activity android:name="com.coderdream.mobilesafe.activity.Setup4Activity" />
 
         <receiver android:name="com.coderdream.mobilesafe.receiver.OutCallReceiver" >
             <intent-filter android:priority="1000" >
